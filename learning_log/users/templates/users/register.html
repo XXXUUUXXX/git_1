@@ -1,0 +1,14 @@
+{% extends 'learning_logs/base.html' %}
+
+{% block content %}
+<form method="post" action="{% url 'users:register' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button name='submit'>register</button>
+  <!--实参value告诉django成功登录后重定向到哪里，这里是主页-->
+  <input type='hidden' name='next' value="{% url 'learning_logs:index' %}" />   
+  
+</form>
+
+
+{% endblock content %}
