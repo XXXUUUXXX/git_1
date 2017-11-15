@@ -1,3 +1,4 @@
+# -*- coding:UTF-8 -*-
 '''learning_logs  URL'''
 
 from django.conf.urls import url
