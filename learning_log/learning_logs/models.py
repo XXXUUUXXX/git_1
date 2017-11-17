@@ -1,4 +1,5 @@
 # -*- coding:UTF-8 -*-
+# models.py定义要在应用程序中管理的数据
 from django.db import models
 from django.contrib.auth.models import User
 

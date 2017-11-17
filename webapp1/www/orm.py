@@ -1,21 +1,22 @@
 import asyncio,logging
 import aiomysql
+
 logging.basicConfig(level=logging.INFO)#日志记录
 
 #日志打印函数：打印出使用的sql语句
 def log(sql,args=()):
-    logging.info('SQL:%s' % sql)
+    logging.info('SQL: %s' % sql)
 
 #异步协程，创建数据库连接池
 @asyncio.coroutine
-def create_pool(loop,**kw):
+def create_pool(loop, **kw):
     logging.info('create database connection pool...')
     #全局私有变量，仅内部可以访问
     global __pool
     #yield from调用协程函数并返回结果
     __pool = yield from aiomysql.create_pool(
         #kw.get(key,default):通过key在kw中查找对应的value，如果没有则返回默认值default
-        host = kw.get('host','localhost')
+        host = kw.get('host','localhost'),
         port = kw.get('port',3306),
         user = kw['user'],
         password = kw['password'],
@@ -73,14 +74,6 @@ def create_args_string(num):
     #用,将占位符?拼接起来
     return ('?'.join(L))
         
-from orm import Model,StringField,IntegerField
-
-class User(Model):
-    __table__ = 'users'
-    
-    id = IntegerField(primary_key = True)
-    name = StringField()
-
 #定义Field类，保存数据库中表的字段名和字段类型
 class Field(object):
     #表的字段包括：名字，类型，是否为主键，默认值
@@ -177,7 +170,7 @@ class ModelMetaclass(type):
         #构造默认的查SELECT,增INSERT,改UPDATE,删DELETE语句
         attrs['__select__'] = 'select `%s`, %s from `%s`' %(primaryKey,', '.join(escaped_fields),tableName)
         attrs['__insert__'] = 'insert into `%s` (%s,`%s`) values (%s)' %(tableName,', '.join(escaped_fields),primaryKey,create_args_string(len(escaped_fields) +1))
-        attrs['__update__'] = 'update `%s` set %s where `%s`=?' % (tableName,', '.join(map(lambda f:''%s'=?' %(mappings.get(f).name or f),fields)),primaryKey)
+        attrs['__update__'] = 'update `%s` set %s where `%s`=?' % (tableName, ', '.join(map(lambda f: '`%s`=?' %(mappings.get(f).name or f),fields)),primaryKey)
         attrs['__delete__'] = 'delete from `%s` where `%s`=?' % (tableName,primaryKey)
         return type.__new__(cls,name,bases,attrs)
 
@@ -206,7 +199,7 @@ class Model(dict,metaclass=ModelMetaclass):
         if value is None:
             field = self.__mappings__[key]
             if field.default is not None:
-                value = field default() if callable(field.default) else field.default
+                value = field.default() if callable(field.default) else field.default
                 logging.debug('using default value for %s: %s' % (key,str(value)))
                 setattr(self,key,value)
         return value
@@ -254,7 +247,7 @@ class Model(dict,metaclass=ModelMetaclass):
     @asyncio.coroutine
     def find(cls,pk):
         'find object by primary key.'
-        rs = yield from select('%s where '%s'=?' % (cls.__select__,cls.__primary_key__),[pk],1)
+        rs = yield from select('%s where `%s`=?' % (cls.__select__,cls.__primary_key__),[pk],1)
         if len(rs)==0:
             return None
         return cls(**rs[0])
