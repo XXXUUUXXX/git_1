@@ -3,19 +3,19 @@ import aiomysql
 
 logging.basicConfig(level=logging.INFO)#日志记录
 
-#日志打印函数：打印出使用的sql语句
+# 日志打印函数：打印出使用的sql语句
 def log(sql,args=()):
     logging.info('SQL: %s' % sql)
 
-#异步协程，创建数据库连接池
+# 异步协程，创建数据库连接池
 @asyncio.coroutine
 def create_pool(loop, **kw):
     logging.info('create database connection pool...')
-    #全局私有变量，仅内部可以访问
+    # 全局私有变量，仅内部可以访问
     global __pool
-    #yield from调用协程函数并返回结果
+    # yield from调用协程函数并返回结果
     __pool = yield from aiomysql.create_pool(
-        #kw.get(key,default):通过key在kw中查找对应的value，如果没有则返回默认值default
+        # kw.get(key,default):通过key在kw中查找对应的value，如果没有则返回默认值default
         host = kw.get('host','localhost'),
         port = kw.get('port',3306),
         user = kw['user'],

@@ -6,7 +6,7 @@ from datetime import datetime
 from aiohttp import web
 
 #用来处理不同类型的url请求，request为aiohttp.web.request实例
-def index(request):
+def index(request):  #URL处理函数
     #构造并返回一个response实例
     return web.Response(body=b'<h1>Awesome</h1>',content_type='text/html')
 
