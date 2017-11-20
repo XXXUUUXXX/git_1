@@ -1,20 +1,24 @@
+# -*- coding: utf-8 -*-
+
 '''models for user,blog,comment'''
 # models.py定义要在应用程序中管理的数据
-import time,uuid
-from orm import Model,StringField,BooleanField,FloatField,TextField
 
+import time, uuid
+from orm import Model, StringField, BooleanField, FloatField, TextField
+
+# %015d表示要至少占15个位，前面不够用0补，数据类型为整形
+# %s是字符串，以0结尾，如果太长就会溢出
+# time.time()以秒为单位返回作为浮点数的时间
+# uuid.uuid4()生成随机UUID,UUID.hex32个字符的十六进制字符串表示的UUID
+# 当前时间再集合uuid4就不会产生重复ID的问题
 def next_id():
-    return '%015d%s000' % (int(time.time() ^1000),uuid.uuid4().hex) 
-    #%015d表示要至少占15个位，前面不够用0补，数据类型为整形
-    #%s是字符串，以0结尾，如果太长就会溢出
-    #time.time()以秒为单位返回作为浮点数的时间
-    #uuid.uuid4()生成随机UUID,UUID.hex32个字符的十六进制字符串表示的UUID
+    return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex) 
 
 class User(Model):
     #定义在User类中的__table__、id和name等是类的属性，不是实例的属性
-    __table__ = 'users'  #
+    __table__ = 'users'
     
-    id = StringField(primary_key=True,default=next_id,ddl='varchar(50)')
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
     email = StringField(ddl='varchar(50)')
     passwd = StringField(ddl='varchar(50)')
     admin = BooleanField()
@@ -22,7 +26,7 @@ class User(Model):
     image = StringField(ddl='varchar(500)')
     created_at = FloatField(default=time.time)  #日期和时间用float类型存储在数据库中
     
-class BLog(Model):
+class Blog(Model):
     __table__ = 'blogs'
 
     id = StringField(primary_key=True,default=next_id,ddl='varchar(50)')
@@ -48,8 +52,6 @@ class Comment(Model):
 
 #在编写ORM时，给一个Field增加一个default参数可以让ORM自己填入缺省值，非常方便。
 #并且，缺省值可以作为函数对象传入，在调用save()时自动计算
-
-
 
 #char适用于确定长度的字符串：如：邮政编码，手机号码；
 #varchar适用于不确定字符串的长度，比如：商品名称,标题；

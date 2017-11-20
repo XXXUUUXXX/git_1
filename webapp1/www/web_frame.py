@@ -15,7 +15,7 @@ def get(path):
     '''Define decorator @get('/path')'''
     def decorator(func):
         @functools.wraps(func)
-        def warpper(*args, **kw):
+        def wrapper(*args, **kw):
             return func(*args, **kw)
         wrapper.__method__ = 'GET' # 存储方法信息
         wrapper.__route__ = path  # 存储路径信息
@@ -142,7 +142,7 @@ class RequestHandler(object):
             if not self._has_var_kw_arg and self._named_kw_args:
                 # remove all unamed kw:
                 copy = dict() 
-                 # 只保留命名关键词参数
+                # 只保留命名关键词参数
                 for name in self._named_kw_args:
                     if name in kw:
                         copy[name] = kw[name]
@@ -154,8 +154,8 @@ class RequestHandler(object):
                 kw[k] = v
         if self._has_request_arg: # 视图函数存在request参数
             kw['request'] = request
-        # check required kw:
-        if self._required_kw_args:  # 视图函数存在无默认值的命名关键词参数
+        # check required kw ,视图函数存在无默认值的命名关键词参数
+        if self._required_kw_args:
             for name in self._required_kw_args: 
                 if not name in kw: # 若未传入必须参数值，报错
                     return web.HTTPBadRequest('Missing argument: %s' % name)
@@ -169,8 +169,8 @@ class RequestHandler(object):
 # 添加静态文件，如image，css，javascript等 
 def add_static(app):
     # 拼接static文件目录
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-    add.router.add_static('/static/',path)
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'static')
+    app.router.add_static('/static/',path)
     logging.info('add static %s => %s' % ('/static/',path))
     
 # 编写一个add_route函数，用来注册一个视图函数 
