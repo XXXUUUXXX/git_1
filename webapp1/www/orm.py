@@ -129,7 +129,7 @@ class TextField(Field):
         super().__init__(name, 'text', False, default)
 
 # ========================================Model基类以及其元类=====================
-# 定义Model的metaclass元类
+# 定义Model的metaclass元类,将具体的子类如User的映射信息读取出来
 # 所有的元类都继承自type
 # ModelMetaclass元类定义了所有Model基类（继承ModelMetaclass)的子类实现的操作
 # 读取具体子类（eg:user)的映射信息

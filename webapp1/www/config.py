@@ -20,7 +20,7 @@ class Dict(dict):
         
 # 用override的已存在配置覆盖default里配置
 # 递归
-def merge(defaults, override):
+def merge(defaults, override): # 收集参数
     r = {}
     for k, v in defaults.items():
         if k in override:

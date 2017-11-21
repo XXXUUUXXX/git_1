@@ -47,8 +47,8 @@ def post(path):
 
 def get_required_kw_args(fn): # 获取没有默认值的命名关键字参数
     args = []
-    params = inspect.singature(fn).parameters
-    for name,param in params.items():
+    params = inspect.signature(fn).parameters
+    for name, param in params.items():
         # 如果视图函数存在命名关键字参数，且默认值为空，获取它的key（参数名）
         # 如果参数没有默认值，则属性设置为Parameter.empty
         if param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
@@ -96,10 +96,9 @@ class RequestHandler(object):
         self._func = fn
         self._has_request_arg = has_request_arg(fn)
         self._has_var_kw_arg = has_var_kw_arg(fn)
-        self._has_named_wk_args = has_named_kw_args(fn)
+        self._has_named_kw_args = has_named_kw_args(fn)
         self._named_kw_args = get_named_kw_args(fn)
         self._required_kw_args = get_required_kw_args(fn)
-    
     # __call__方法的代码逻辑:
     # 1.定义kw对象，用于保存参数
     # 2.判断request对象是否存在参数，如果存在则根据是POST还是GET方法将参数内容保存到kw
@@ -108,7 +107,7 @@ class RequestHandler(object):
     async def __call__(self, request): # __call__这里要构造协程
         kw = None
         # 确保有参数
-        if self._has_var_kw_arg or self._has_named_kw_args or self.required_kw_args:
+        if self._has_var_kw_arg or self._has_named_kw_args or self._required_kw_args:
             # 判断客户端发来的方法是否为POST
             if request.method == 'POST':
                 # 判断是否存在Content-Type（媒体格式类型），一般Content-Type包含的值：
@@ -135,9 +134,9 @@ class RequestHandler(object):
                     for k,v in parse.parse_qs(qs,True).items():
                         kw[k] = v[0]
         if kw is None: # 参数为空说明没有从Request对象中获取到必要参数
-             # 此时kw指向match_info属性，一个变量标识符的名字的dict列表。Request中获取的命名关键字参数必须要在这个dict当中
+            # 此时kw指向match_info属性，一个变量标识符的名字的dict列表。Request中获取的命名关键字参数必须要在这个dict当中
             kw = dict(**request.match_info)
-         # kw不为空时，还要判断下是可变参数还是命名关键字参数
+        # kw不为空时，还要判断下是可变参数还是命名关键字参数
         else:
             if not self._has_var_kw_arg and self._named_kw_args:
                 # remove all unamed kw:

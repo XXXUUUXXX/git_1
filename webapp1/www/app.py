@@ -39,7 +39,7 @@ def init_jinja2(app, **kw):
     # Environment是Jinja2中的一个核心类，它的实例用来保存配置、全局对象，以及从本地文件系统或其它位置加载模板
     # FileSystemLoader类加载path路径中的模板文件
     # 这里把要加载的模板和配置传给Environment，生成Environment实例
-    env = Enviroment(loader=FileSystemLoader(path), **options)
+    env = Environment(loader=FileSystemLoader(path), **options)
     # 从参数取filter字段
     # filters: 过滤器集合
     filters = kw.get('filters', None)
@@ -64,7 +64,7 @@ def init_jinja2(app, **kw):
 def logger_factory(app, handler): 
     @asyncio.coroutine
     def logger(request):
-        logging.info('Request : %s, %s' % (request.method, request.path))
+        logging.info('Request: %s, %s' % (request.method, request.path))
         return(yield from handler(request))
     return logger
 
@@ -91,7 +91,6 @@ def data_factory(app, handler):
 #     	RequestHandler目的就是从URL函数中分析其需要接收的参数，从request中获取必要的参数，调用URL函数,然后把结果返回给response_factory
 #     	response_factory在拿到经过处理后的对象，经过一系列对象类型和格式的判断，构造出正确web.Response对象，以正确的方式返回给客户端
 # 在response_factory中应用了jinja2来套用模板
-
 @asyncio.coroutine
 def response_factory(app,handler):
     @asyncio.coroutine
@@ -128,7 +127,6 @@ def response_factory(app,handler):
                 resp.content_type = 'application/json;charset=utf-8'
                 return resp
             else:
-                r['__user__'] = request.__user__
                 # 如果有'__template__'为key的值，则说明要套用jinja2的模板，'__template__'Key对应的为模板网页所在位置
                 resp = web.Response(body=app['__templating__'].get_template(
                     template).render(**r).encode('utf-8'))
@@ -183,7 +181,7 @@ def init(loop):
     # 启动
     # loop.create_server创建一个TCP server,yield from返回一个创建好的,绑定IP和端口以及http协议簇的监听服务的协程
     # app.make_handler()创建用于处理请求的HTTP协议工厂
-    srv = yield from loop.create_server(app.make_handler(),'127.0.0.1',9000)
+    srv = yield from loop.create_server(app.make_handler(),'127.0.0.1', 9000)
     logging.info('server started at http://127.0.0.1:9000')
     return srv
     
