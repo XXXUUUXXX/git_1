@@ -41,7 +41,7 @@ def select(sql,args,size=None):
         # 查询需要返回查询的结果，按照dict返回，所以游标cursor中传入参数aiomysql.DictCursor
         cur = yield from conn.cursor(aiomysql.DictCursor)
         # 执行sql语句前，所有args都通过repalce方法把sql的占位符?换成mysql中占位符%s
-        # args是execute方法的参数
+        # args是execute方法的参数,如果args为None返回空tuple
         yield from cur.execute(sql.replace('?','%s'),args or ())      
         if size:     # 如果指定要返回几行
             rs = yield from cur.fetchmany(size) # 从数据库获取指定的行数

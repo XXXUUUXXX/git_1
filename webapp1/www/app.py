@@ -15,6 +15,7 @@ from config import configs
 import orm 
 
 from web_frame import add_routes, add_static
+from handlers import cookie2user, COOKIE_NAME
 
 def init_jinja2(app, **kw):
     logging.info('init jinja2....')
@@ -67,7 +68,28 @@ def logger_factory(app, handler):
         logging.info('Request: %s, %s' % (request.method, request.path))
         return(yield from handler(request))
     return logger
-
+    
+# 是为了验证当前的这个请求用户是否在登录状态下，或是否是伪造的sha1
+@asyncio.coroutine
+def auth_factory(app, handler):
+    @asyncio.coroutine
+    def auth(request):
+        logging.info('check user: %s %s' % (request.method, request.path))
+        request.__user__ = None
+        # 获取到cookie字符串
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            # 通过反向解析字符串和与数据库对比获取出user
+            user = yield from cookie2user(cookie_str)
+            if user:
+                logging.info('set current user: %s' % user.email)
+                # user存在则绑定到request上，说明当前用户是合法的
+                request.__user__ = user
+        if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
+            return web.HTTPFound('/signin')
+        return (yield from handler(request))
+    return auth
+    
 @asyncio.coroutine
 def data_factory(app, handler):
     @asyncio.coroutine
