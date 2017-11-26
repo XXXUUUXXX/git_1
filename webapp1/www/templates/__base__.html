@@ -21,10 +21,10 @@
         <div class="uk-container uk-container-center">
             <a href="/" class='uk-navbar-brand'>Blog of Tian Yang</a>
             <ul class='uk-navbar-nav'>
-                <li data-url="blogs"><a href='/'><i class='uk-icon-home'></i>日志</a></li>
-                <li><a target='_blank'href='http://39.106.98.76/manage/blogs'><i class='uk-icon-book'></i>博文管理</a></li>
-                <li><a target="_blank" href="http://39.106.98.76/manage/users"><i class="uk-icon-book"></i> 用户管理</a></li>
-                <li><a target="_blank" href="http://39.106.98.76/manage/comments"><i class="uk-icon-book"></i> 评论管理</a></li>
+                <li data-url="blogs"><a href='/'><i class='uk-icon-home'></i> 日志</a></li>
+                <li><a target='_blank'href='http://127.0.0.1:9000/manage/blogs'><i class='uk-icon-book'></i> 博文管理</a></li>
+                <li><a target="_blank" href="http://127.0.0.1:9000/manage/users"><i class="uk-icon-book"></i> 用户管理</a></li>
+                <li><a target="_blank" href="http://127.0.0.1:9000/comments"><i class="uk-icon-book"></i> 评论管理</a></li>
                 <li><a target="_blank" href="https://github.com/XXXUUUXXX/git_1/tree/master/webapp1"><i class="uk-icon-code"></i> 源码</a></li>
             </ul>
             <div class='uk-navbar-flip'>
@@ -34,13 +34,13 @@
                         <a href='#0'><i class='uk-icon-user'></i>{{ __user__.name }}</a>
                         <div class='uk-dropdown uk-dropdown-navbar'>
                             <ul class='uk-nav uk-nav-navbar'>
-                                <li><a href='/signout'><i class='uk-icon-sign-out'></i>登出</a></li>
+                                <li><a href='/signout'><i class='uk-icon-sign-out'></i> 登出</a></li>
                             </ul>
                         </div>
                     </li>
                 {% else %}
-                    <li><a href='/signin'><i class='uk-icon-sign-in'></i>登录</a></li>
-                    <Li><a href='/register'><i class='uk-icon-edit'></i>注册</a></Li>
+                    <li><a href='/signin'><i class='uk-icon-sign-in'></i> 登录</a></li>
+                    <Li><a href='/register'><i class='uk-icon-edit'></i> 注册</a></Li>
                 {% endif %}
                 </ul>
             </div>
@@ -63,8 +63,8 @@
                     <a target='_blank' href='about:blank' class='uk-icon-button uk-icon-linkedin-square'></a>
                     <a target='_blank' href='about:blank' class='uk-icon-button uk-icon-twitter'></a>
                 </p>
-                <p>Powered by <a href='http://blog.tianyang.com'>Python Blog</a>. Copyright &copy; 2017. [<a href='_blank'>Manage</a>]</p>
-                <p><a href='http://www.tianyang.com/' target='_blank'>www.tianyang.com</a>. All rights reserved.</p>
+                <p>Powered by <a href='http://blog.tianyang.com'>Python Blog</a>. Copyright &copy; 2017.</p>
+                <p><a href='http://www.tianyang.club/' target='_blank'>www.tianyang.club</a>. All rights reserved.</p>
                 <a target='_blank' href='http://www.w3.org/TR/html5/'><i class='uk-icon-html5' style='font-size:64px; color: #444;'></i></a>
             </div>
         </div>

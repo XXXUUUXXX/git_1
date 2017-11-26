@@ -1,10 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #报告在程序的正常操作期间发生的事件
 import logging
 logging.basicConfig(level = logging.INFO)  # 必须紧跟其后
-import asyncio
-import os
-import json
-import time
+import asyncio,os,json,time
 
 from datetime import datetime
 
@@ -66,7 +66,7 @@ def logger_factory(app, handler):
     @asyncio.coroutine
     def logger(request):
         logging.info('Request: %s, %s' % (request.method, request.path))
-        return(yield from handler(request))
+        return (yield from handler(request))
     return logger
     
 # 是为了验证当前的这个请求用户是否在登录状态下，或是否是伪造的sha1

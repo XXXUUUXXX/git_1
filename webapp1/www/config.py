@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import config_default
 
 # 这个类主要可以使dict对象，以object.key 形式来替代  object[key]来取值

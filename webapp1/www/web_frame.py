@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import asyncio
 import os
 # inspect模块提供了四种主要的服务：类型检查，获取源代码，检查类和函数，以及检查解释器堆栈

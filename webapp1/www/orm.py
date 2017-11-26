@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import asyncio
 import logging
 import aiomysql # 异步mysql驱动支持
