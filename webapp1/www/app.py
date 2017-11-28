@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#报告在程序的正常操作期间发生的事件
+# 报告在程序的正常操作期间发生的事件
 import logging
-logging.basicConfig(level = logging.INFO)  # 必须紧跟其后
-import asyncio,os,json,time
+logging.basicConfig(level=logging.INFO)  # 必须紧跟其后
+import asyncio
+import os
+import json
+import time
 
 from datetime import datetime
 
@@ -12,10 +15,11 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from config import configs
-import orm 
+import orm
 
 from web_frame import add_routes, add_static
 from handlers import cookie2user, COOKIE_NAME
+
 
 def init_jinja2(app, **kw):
     logging.info('init jinja2....')
@@ -23,11 +27,11 @@ def init_jinja2(app, **kw):
     options = dict(
         # 是否转义设置为True，就是在渲染模板时自动把变量中的<>&等字符转换为&lt;&gt;&amp;
         # 自动转义xml/html的特殊字符
-        autoescape = kw.get('autoescape', True),
+        autoescape=kw.get('autoescape', True),
         block_start_string=kw.get('block_start_string', '{%'),   # 运行代码的开始标识符
-        block_end_string=kw.get('block_end_string','%}'),        # 运行代码的结束标识符
-        variable_start_string=kw.get('variable_start_string','{{'),  # 变量开始标识符
-        variable_end_string=kw.get('variable_end_string','}}'),      # 变量结束标识符
+        block_end_string=kw.get('block_end_string', '%}'),        # 运行代码的结束标识符
+        variable_start_string=kw.get('variable_start_string', '{{'),  # 变量开始标识符
+        variable_end_string=kw.get('variable_end_string', '}}'),      # 变量结束标识符
         # Jinja2会在使用Template时检查模板文件的状态，如果模板有修改， 则重新加载模板。如果对性能要求较高，可以将此值设为False
         auto_reload=kw.get('auto_reload', True)
     )
@@ -35,7 +39,8 @@ def init_jinja2(app, **kw):
     path = kw.get('path', None)
     # 如果没有，则默认为当前文件目录下的templates目录
     if path is None:
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+        path = os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), 'templates')
     logging.info('set jinja2 template path: %s' % path)
     # Environment是Jinja2中的一个核心类，它的实例用来保存配置、全局对象，以及从本地文件系统或其它位置加载模板
     # FileSystemLoader类加载path路径中的模板文件
@@ -53,8 +58,7 @@ def init_jinja2(app, **kw):
     # 给webapp设置模板
     app['__templating__'] = env
 
-        
-        
+
 # ------------------------------------------拦截器middlewares设置-------------------------
 # middlerware是符合WSGI定义的中间件。位于服务端和客户端之间对数据进行拦截处理的一个桥梁
 # 编写middlerware对视图函数返回的数据进行处理
@@ -62,14 +66,16 @@ def init_jinja2(app, **kw):
 # 在正式处理之前打印日志
 # handler是视图函数
 @asyncio.coroutine
-def logger_factory(app, handler): 
+def logger_factory(app, handler):
     @asyncio.coroutine
     def logger(request):
         logging.info('Request: %s, %s' % (request.method, request.path))
         return (yield from handler(request))
     return logger
-    
+
 # 是为了验证当前的这个请求用户是否在登录状态下，或是否是伪造的sha1
+
+
 @asyncio.coroutine
 def auth_factory(app, handler):
     @asyncio.coroutine
@@ -89,13 +95,14 @@ def auth_factory(app, handler):
             return web.HTTPFound('/signin')
         return (yield from handler(request))
     return auth
-    
+
+
 @asyncio.coroutine
 def data_factory(app, handler):
     @asyncio.coroutine
     def parse_data(request):
         if request.method == 'POST':
-            if request.content_type.startswith('application/json'): 
+            if request.content_type.startswith('application/json'):
                 request.__data__ = yield from request.json()
                 logging.info('request json : %s' % str(request.__data__))
             elif request.content_type.startswith('application/x-www-form-urlencoded'):
@@ -106,15 +113,17 @@ def data_factory(app, handler):
 
 # 响应处理
 # 总结下来一个请求在服务端收到后的方法调用顺序是:
-#     	logger_factory->response_factory->RequestHandler().__call__->get或post->handler
+#       logger_factory->response_factory->RequestHandler().__call__->get或post->handler
 # 那么结果处理的情况就是:
-#     	由handler构造出要返回的具体对象
-#     	@get@post装饰器在这个返回对象上加上'__method__'和'__route__'属性，使其附带URL信息
-#     	RequestHandler目的就是从URL函数中分析其需要接收的参数，从request中获取必要的参数，调用URL函数,然后把结果返回给response_factory
-#     	response_factory在拿到经过处理后的对象，经过一系列对象类型和格式的判断，构造出正确web.Response对象，以正确的方式返回给客户端
+#       由handler构造出要返回的具体对象
+#       @get@post装饰器在这个返回对象上加上'__method__'和'__route__'属性，使其附带URL信息
+#       RequestHandler目的就是从URL函数中分析其需要接收的参数，从request中获取必要的参数，调用URL函数,然后把结果返回给response_factory
+#       response_factory在拿到经过处理后的对象，经过一系列对象类型和格式的判断，构造出正确web.Response对象，以正确的方式返回给客户端
 # 在response_factory中应用了jinja2来套用模板
+
+
 @asyncio.coroutine
-def response_factory(app,handler):
+def response_factory(app, handler):
     @asyncio.coroutine
     def response(request):
         logging.info('Response handler...')
@@ -123,11 +132,11 @@ def response_factory(app,handler):
         logging.info('r = %s' % str(r))
         # 如果响应结果为web.StreamResponse类，则直接把它作为响应返回
         if isinstance(r, web.StreamResponse):
-            return r 
+            return r
         # 如果响应结果为字节流，则把字节流塞到response的body里，设置响应类型为流类型，返回
         if isinstance(r, bytes):
             resp = web.Response(body=r)
-            resp.content_type  = 'application/octet-stream'
+            resp.content_type = 'application/octet-stream'
             return resp
         # 如果响应结果为字符串
         if isinstance(r, str):
@@ -144,8 +153,8 @@ def response_factory(app,handler):
             template = r.get('__template__')
             # 如果没有，说明要返回json字符串，则把字典转换为json返回，对应的response类型设为json类型
             if template is None:
-                resp  = web.Response(body=json.dumps(
-                    r,ensure_ascii=False, default=lambda o: o.__dict__).encode('utf-8'))
+                resp = web.Response(body=json.dumps(
+                    r, ensure_ascii=False, default=lambda o: o.__dict__).encode('utf-8'))
                 resp.content_type = 'application/json;charset=utf-8'
                 return resp
             else:
@@ -156,11 +165,11 @@ def response_factory(app,handler):
                 # 以html的形式返回
                 return resp
         # 如果响应结果为int
-        if isinstance(r, int) and r >=100 and r < 600:
+        if isinstance(r, int) and r >= 100 and r < 600:
             return web.Response(r)
         # 如果响应结果为tuple且数量为2
         if isinstance(r, tuple) and len(r) == 2:
-            t,m = r
+            t, m = r
             # 如果tuple的第一个元素是int类型且在100到600之间，这里应该是认定为t为http状态码，m为错误描述
             # 或者是服务端自己定义的错误码+描述
             if isinstance(t, nt) and t >= 100 and t < 600:
@@ -170,7 +179,8 @@ def response_factory(app,handler):
             resp.content_type = 'text/plain;charset=utf-8'
             return resp
     return response
-        
+
+
 def datetime_filter(t):
     delta = int(time.time() - t)
     if delta < 60:
@@ -184,6 +194,7 @@ def datetime_filter(t):
     dt = datetime.fromtimestamp(t)
     return u'%s年%s月%s日' % (dt.year, dt.month, dt.day)
 
+
 @asyncio.coroutine
 def init(loop):
     # 创建数据库连接池，db参数传配置文件里的配置db
@@ -193,20 +204,22 @@ def init(loop):
     # middlewares中的每个factory接受两个参数，app 和 handler(即middlewares中得下一个handler)
     # 譬如这里logger_factory的handler参数其实就是response_factory()
     # middlewares的最后一个元素的Handler会通过routes查找到相应的，其实就是routes注册的对应handler
-    app = web.Application(loop=loop, middlewares=[logger_factory, response_factory])
+    app = web.Application(loop=loop, middlewares=[
+                          logger_factory, response_factory])
     # 初始化jinja2模板
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     # 添加请求的handlers，即各请求相对应的处理函数
-    add_routes(app,'handlers')
+    add_routes(app, 'handlers')
     # 添加静态文件所在地址
     add_static(app)
     # 启动
     # loop.create_server创建一个TCP server,yield from返回一个创建好的,绑定IP和端口以及http协议簇的监听服务的协程
     # app.make_handler()创建用于处理请求的HTTP协议工厂
-    srv = yield from loop.create_server(app.make_handler(),'127.0.0.1', 9000)
+    srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
     logging.info('server started at http://127.0.0.1:9000')
     return srv
-    
-loop = asyncio.get_event_loop() # 生成一个事件循环实例 
-loop.run_until_complete(init(loop)) # 将协程放入事件循环之中
-loop.run_forever() # 一直运行
+
+
+loop = asyncio.get_event_loop()  # 生成一个事件循环实例
+loop.run_until_complete(init(loop))  # 将协程放入事件循环之中
+loop.run_forever()  # 一直运行
